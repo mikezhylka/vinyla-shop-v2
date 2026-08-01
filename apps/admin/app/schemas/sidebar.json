@@ -1,0 +1,8 @@
+{
+  "menuPageOrder": [
+    "users",
+    "genres",
+    "products",
+    "genreToProduct"
+  ]
+}

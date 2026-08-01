@@ -1,0 +1,27 @@
+{
+  "version": "3.4",
+  "type": "table",
+  "title": "products",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "postgres_uwjv",
+    "fetchStrategy": "databaseTable",
+    "table": "Product",
+    "columns": [
+      {
+        "column": "photo",
+        "label": "Photo",
+        "hiddenInTable": false,
+        "hiddenInForm": false,
+        "filterable": true,
+        "sortable": false,
+        "searchable": true,
+        "fieldInput": {
+          "type": "input"
+        },
+        "fieldRequirement": "notEmpty",
+        "formFieldSpan": "12"
+      }
+    ]
+  }
+}

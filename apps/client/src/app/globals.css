@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+@theme {
+  --color-white: #fcfcfc;
+  --color-secondary: #261930;
+  --color-cart-background: #222;
+  --color-gray: #5f5f5f;
+  --color-neutral-gray: #a5a5a5;
+  --color-body-background: #111;
+  --color-red: #d90e0e;
+  --color-button-hover: #e0e0e0;
+
+  --color-surface-container: #201f1f;
+  --color-secondary: #c8c6c5;
+  --color-inverse-on-surface: #313030;
+  --color-outline-variant: #474747;
+  --color-surface-bright: #3a3939;
+  --color-primary: #ffffff;
+  --color-surface-variant: #353534;
+  --color-surface-container-high: #2a2a2a;
+  --color-surface-container-low: #1c1b1b;
+  --color-surface-container-lowest: #0e0e0e;
+  --color-surface-container-highest: #353534;
+  --color-on-surface-variant: #c6c6c6;
+  --color-surface-dim: #131313;
+  --color-on-primary: #1a1c1c;
+  --color-outline: #919191;
+  --color-surface: #131313;
+  --color-background: #131313;
+
+  --breakpoint-md: 640px;
+  --breakpoint-lg: 1440px;
+
+  --font-switzer: "Switzer", sans-serif;
+
+  /* Images - Logos */
+  --image-logo-vinyla: url("/images/logos/vinyla.svg");
+
+  /* Images - Icons */
+  --image-icon-cancel: url("/images/icons/cancel.svg");
+  --image-icon-burger-menu: url("/images/icons/burger-menu.svg");
+  --image-icon-heart: url("/images/icons/heart.svg");
+  --image-icon-heart-filled: url("/images/icons/heart-filled.svg");
+  --image-icon-cart: url("/images/icons/cart.svg");
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes scale-up {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+    }
+    60%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  @keyframes pulse-custom {
+    0%,
+    60%,
+    100% {
+      transform: scale(1);
+    }
+    80% {
+      transform: scale(1.2);
+    }
+  }
+
+  --animation-scale-up: scale-up 1s linear infinite;
+  --animation-pulse-custom: pulse-custom 1s linear infinite;
+}
+
+@layer base {
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    background-color: var(--color-body-background);
+    color: var(--color-white);
+    font-family: var(--font-switzer);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+}
+
+/* Headings */
+@utility h1 {
+  @apply text-[64px] font-semibold leading-tight;
+}
+
+@utility h2 {
+  @apply text-[40px] font-semibold leading-tight;
+}
+
+@utility h3 {
+  @apply text-[32px] font-semibold leading-tight;
+}
+
+@utility h4 {
+  @apply text-[24px] font-semibold leading-tight;
+}
+
+@utility h5 {
+  @apply text-[20px] font-semibold leading-tight;
+}
+
+@utility h6 {
+  @apply text-[16px] font-semibold leading-tight;
+}
+
+/* Body & Content Text */
+@utility main-text {
+  @apply text-[20px] font-normal;
+}
+
+@utility secondary-text {
+  @apply text-[16px] font-normal;
+}
+
+@utility small-text {
+  @apply text-[14px] font-normal;
+}
+
+/* Display Text */
+@utility big-text {
+  @apply text-[80px] leading-22 font-bold;
+}
+
+@utility main-grid {
+  @apply grid grid-cols-4 px-4 gap-x-4 gap-y-4 md:px-5 md:gap-x-5 lg:grid-cols-12 max-w-360 mx-auto;
+}
+
+@utility btn-primary {
+  @apply font-switzer text-[16px] font-bold leading-6 rounded-2xl border-0 p-0 bg-white text-black transition-all hover:bg-button-hover;
+}
+
+@utility btn-link {
+  @apply flex items-center justify-center no-underline bg-inherit w-40 h-12 lg:w-54;
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-outline-variant/20 bg-surface-container-lowest py-4 px-5 text-sm text-white outline-none transition-all focus:ring-1 focus:ring-primary;
+  /* @apply w-full h-12 bg-transparent border border-white/20 rounded-lg px-4 text-white focus:outline-none focus:border-white/60 focus:bg-body-background transition-all placeholder:text-neutral-gray; */
+}
+
+/* --- Scroll Animation --- */
+@utility animate-on-scroll {
+  animation: appear linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}
+
+/* --- Logo Utilities --- */
+@utility bg-logo-vinyla {
+  @apply bg-[url('/images/logos/vinyla.svg')] bg-contain bg-center bg-no-repeat;
+}
+
+/* --- Icon Utilities --- */
+@utility bg-icon-cancel {
+  @apply bg-[url('/images/icons/cancel.svg')] bg-contain;
+}
+
+@utility bg-icon-burger {
+  @apply bg-[url('/images/icons/burger-menu.svg')] bg-contain;
+}
+
+@utility bg-icon-heart {
+  @apply bg-[url('/images/icons/heart.svg')] bg-center bg-no-repeat bg-contain;
+}
+
+@utility bg-icon-heart-filled {
+  @apply bg-[url('/images/icons/heart-filled.svg')] bg-center bg-no-repeat bg-contain;
+}
+
+@utility bg-icon-cart {
+  @apply bg-[url('/images/icons/cart.svg')] bg-contain bg-no-repeat;
+}
+
+/* Специальные модификаторы сетки для карточек товаров */
+
+/* @utility product-on-page {
+  grid-column: span 2;
+  min-height: 200px;
+  @variant md {
+    grid-column: span 1;
+  }
+  @variant lg {
+    grid-column: span 3;
+    min-height: 410px;
+  }
+} */

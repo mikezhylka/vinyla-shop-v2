@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// USER - PROFILE 1-1
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  refreshToken String   @unique @map("refresh_token")
+  userId       Int      @map("user_id")
+  user         User     @relation(fields: [userId], references: [id])
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique //email can't be repeated
+  password String
+  profile  Profile?
+  orders   Order[]
+  sessions Session[]
+}
+
+model Profile {
+  id           Int           @id @default(autoincrement())
+  user         User          @relation(fields: [userId], references: [id])
+  name         String
+  avatar       String?
+  cartProducts CartProduct[]
+  favorites    Product[]
+  comments     Comment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       Int           @unique
+}
+
+model Order {
+  id     Int         @id @default(autoincrement())
+  items  OrderItem[]
+  userId Int?
+  user   User?       @relation(fields: [userId], references: [id])
+
+  status   OrderStatus    @default(SHIPPING)
+  shipping ShippingMethod @default(FREE_SHIPPING)
+
+  contact OrderContact?
+  address OrderAddress?
+
+  createdAt DateTime @default(now())
+}
+
+model OrderContact {
+  id      Int   @id @default(autoincrement())
+  orderId Int   @unique
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  firstName String
+  lastName  String
+  phone     String
+  email     String
+}
+
+model OrderAddress {
+  id      Int   @id @default(autoincrement())
+  orderId Int   @unique
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  country String
+  zip     String
+  city    String
+  street  String
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  quantity        Int @default(1)
+  priceAtPurchase Int
+}
+
+model Product {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  label       String
+  barcode     String @unique
+  photo       String
+  price       Int
+
+  genres       Genre[]
+  profiles     Profile[]
+  orderItems   OrderItem[]
+  comments     Comment[]
+  cartProducts CartProduct[]
+}
+
+model CartProduct {
+  id       Int @id @default(autoincrement())
+  quantity Int @default(1)
+
+  profileId Int
+  productId Int
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Гарантирует, что один и тот же продукт не появится в корзине дважды отдельными строками.
+  // Вместо этого ты будешь просто обновлять поле quantity.
+  @@unique([profileId, productId])
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  rate        Int?
+  description String?
+  createdAt   DateTime @default(now())
+
+  profileId Int
+  productId Int
+
+  profile Profile @relation(fields: [profileId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  parentId Int?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+}
+
+model Genre {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
+
+model ContactForm {
+  id        Int    @id @default(autoincrement())
+  firstName String @map("first_name")
+  lastName  String @map("last_name")
+  email     String
+  subject   String
+  message   String
+}
+
+enum OrderStatus {
+  DECLINED
+  PAID
+  SHIPPING
+}
+
+enum ShippingMethod {
+  FREE_SHIPPING
+  EXPRESS_SHIPPING
+  PICK_UP
+}
