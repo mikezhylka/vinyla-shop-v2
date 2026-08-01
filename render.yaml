@@ -1,0 +1,30 @@
+services:
+  # NESTJS
+  - type: web
+    name: vinyla-api
+    env: node
+    buildCommand: npm install && npx turbo build --filter=api
+    startCommand: npm run start:prod --workspace=apps/api
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+
+  # Next.js
+  - type: web
+    name: vinyla-client
+    env: node
+    buildCommand: npm install && npx turbo build --filter=client
+    startCommand: npm run start --workspace=apps/client
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+
+  # Admin panel
+  - type: web
+    name: vinyla-admin
+    env: node
+    buildCommand: npm install && npx turbo build --filter=admin
+    startCommand: npm start --workspace=apps/admin
+    envVars:
+      - key: PG_CONNECTION_STRING
+        sync: false
