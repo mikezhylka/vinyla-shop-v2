@@ -25,6 +25,8 @@ export const StarIcon = memo(
 
     return (
       <svg
+        width="14"
+        height="14"
         viewBox="0 0 24 24"
         fill={filled ? "currentColor" : "none"}
         stroke="currentColor"
