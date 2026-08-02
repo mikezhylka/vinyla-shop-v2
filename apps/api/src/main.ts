@@ -9,7 +9,12 @@ async function bootstrap() {
 
   app.use(helmet());
 
-  const defaultOrigins = ['http://localhost:5000', 'http://localhost:5480'];
+  const defaultOrigins = [
+    'http://localhost:5000',
+    'http://localhost:5480',
+    'https://vinyla-admin.onrender.com/',
+  ];
+
   const allowedOrigins = process.env.CLIENT_URL
     ? [process.env.CLIENT_URL, ...defaultOrigins]
     : defaultOrigins;
