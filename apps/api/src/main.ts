@@ -23,6 +23,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.use(cookieParser());
 
-  await app.listen(3000);
+  const port = process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0');
 }
 void bootstrap();
