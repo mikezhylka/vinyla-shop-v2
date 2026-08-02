@@ -24,7 +24,7 @@ export default () => (
               try {
                 // Отправляем фото на бекенд эндпоинт NestJS
                 const response = await fetch(
-                  "http://localhost:3000/product/upload-photo",
+                  "https://vinyla-api.onrender.com/product/upload-photo",
                   {
                     method: "POST",
                     body: formData,
