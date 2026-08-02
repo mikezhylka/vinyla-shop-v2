@@ -56,7 +56,12 @@ export default function ProductPage({ product, recommendations }: Props) {
     console.log(product);
   }, [comments]);
 
-  const toggleCart = useToggleCart({ id, cartLoading, setCartLoading });
+  const toggleCart = useToggleCart({
+    id,
+    cartLoading,
+    setCartLoading,
+    setIsLoginModalOpen,
+  });
 
   const toggleWishlist = useToggleWishlist({
     id,

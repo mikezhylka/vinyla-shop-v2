@@ -44,7 +44,12 @@ export default function ProductCard({ product, className }: Props) {
   const [isCartHovered, setIsCartHovered] = useState(false);
   const [isWishlistHovered, setIsWishlistHovered] = useState(false);
 
-  const handleToggleCart = useToggleCart({ id, cartLoading, setCartLoading });
+  const handleToggleCart = useToggleCart({
+    id,
+    cartLoading,
+    setCartLoading,
+    setIsLoginModalOpen,
+  });
   const handleToggleWishlist = useToggleWishlist({
     id,
     wishlistLoading,

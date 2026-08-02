@@ -8,19 +8,33 @@ import {
   setCartProductsIds,
 } from "@/entities/cart";
 import { useAppDispatch, useAppSelector } from "@/shared/lib/store/hooks";
+import { selectIsAuthorized } from "@/entities/profile/model/selectors";
 
 interface Props {
   id: number;
   cartLoading: boolean;
   setCartLoading: React.Dispatch<SetStateAction<boolean>>;
+  setIsLoginModalOpen: React.Dispatch<SetStateAction<boolean>>;
 }
 
-export const useToggleCart = ({ id, cartLoading, setCartLoading }: Props) => {
+export const useToggleCart = ({
+  id,
+  cartLoading,
+  setCartLoading,
+  setIsLoginModalOpen,
+}: Props) => {
   const { cartProductsIds } = useAppSelector((state) => state.cart);
   const isProductInCart = useAppSelector(selectIsProductInCart)(id);
+  const isAuthorized = useAppSelector(selectIsAuthorized);
   const dispatch = useAppDispatch();
 
   return useCallback(async () => {
+    if (!isAuthorized) {
+      setIsLoginModalOpen(true);
+
+      return;
+    }
+
     if (cartLoading) return;
 
     setCartLoading(true);
