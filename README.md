@@ -56,38 +56,30 @@ To run the project locally, you will need **Node.js** (v20+ recommended), **Post
 
 1. **Install Dependencies**  
    From the root of the project, run the following command (NPM will install dependencies for all workspaces):
-
-
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 2. **Database Setup**  
    Make sure your PostgreSQL database is running. You may need to run Prisma migrations and seed the initial data before starting:
-
-
-    ```bash
-    cd apps/api
-    npx prisma generate
-    npx prisma db push
-    npm run prisma:seed # (if a seed script is configured)
-    ```
+   ```bash
+   cd apps/api
+   npx prisma generate
+   npx prisma db push
+   npm run prisma:seed # (if a seed script is configured)
+   ```
 
 3. **Run in Development Mode (Dev)**  
    Go back to the project root. Thanks to Turborepo, you can spin up the client, server, and admin panel simultaneously with a single command:
-
-
-    ```bash
-    npm run dev
-    ```
+   ```bash
+   npm run dev
+   ```
 
 4. **Build the Project**  
    To test the production build for all applications at once:
-
-
-    ```bash
-    npm run build
-    ```
+   ```bash
+   npm run build
+   ```
 
 ## 📝 Development & Code Standards
 
