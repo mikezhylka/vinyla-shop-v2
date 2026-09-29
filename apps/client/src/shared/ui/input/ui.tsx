@@ -46,7 +46,7 @@ export default function Input<T extends FieldValues>({
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+            aria-label={showPassword ? "Hide password" : "Show password"}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-opacity duration-200 opacity-0 peer-focus:opacity-100 peer-[:not(:placeholder-shown)]:opacity-100"
           >
             {showPassword ? (

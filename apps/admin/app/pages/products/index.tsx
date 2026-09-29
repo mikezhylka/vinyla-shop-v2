@@ -22,7 +22,7 @@ export default () => (
               formData.append("file", file);
 
               try {
-                // Отправляем фото на бекенд эндпоинт NestJS
+                // Send photo to NestJS backend endpoint
                 const response = await fetch(
                   "https://vinyla-api.onrender.com/product/upload-photo",
                   {

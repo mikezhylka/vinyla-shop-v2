@@ -25,12 +25,13 @@ model Session {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique //email can't be repeated
-  password String
-  profile  Profile?
-  orders   Order[]
-  sessions Session[]
+  id         Int       @id @default(autoincrement())
+  email      String    @unique //email can't be repeated
+  password   String
+  isVerified Boolean   @default(false)
+  profile    Profile?
+  orders     Order[]
+  sessions   Session[]
 }
 
 model Profile {
@@ -155,6 +156,13 @@ model ContactForm {
   email     String
   subject   String
   message   String
+}
+
+model RegistrationVerificationCode {
+  id        Int      @id @default(autoincrement())
+  code      String
+  email     String   @unique
+  expiresAt DateTime @map("expires_at")
 }
 
 enum OrderStatus {

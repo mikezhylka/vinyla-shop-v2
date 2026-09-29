@@ -186,7 +186,7 @@
   @apply bg-[url('/images/icons/cart.svg')] bg-contain bg-no-repeat;
 }
 
-/* Специальные модификаторы сетки для карточек товаров */
+/* Special grid modifiers for product cards */
 
 /* @utility product-on-page {
   grid-column: span 2;

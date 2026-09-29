@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -12,6 +12,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
+import { NotificationService } from '@src/notification/notification.service';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { redisStore } from 'cache-manager-redis-store';
       }),
       global: true,
     }),
-    UsersModule,
+    forwardRef(() => UsersModule),
     DatabaseModule,
   ],
   providers: [
@@ -41,6 +42,7 @@ import { redisStore } from 'cache-manager-redis-store';
     JwtStrategy,
     ProfileService,
     CloudinaryService,
+    NotificationService,
   ],
   controllers: [AuthController],
   exports: [AuthService],

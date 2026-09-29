@@ -1,20 +1,26 @@
 import { ClientProfile, CreateUserDto } from '@monorepo/shared-types';
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaTransaction } from '@src/common/types/prisma-transaction.type';
 import { DatabaseService } from '@src/database/database.service';
 import * as bcrypt from 'bcryptjs';
 import { Passwords } from './types/Passwords';
+import { VerifyUserDto } from './types/VerifyUserDto';
+import { AuthService } from '@src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private databaseService: DatabaseService) {}
+  constructor(
+    private databaseService: DatabaseService,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
+  ) {}
 
-  async create(createUserDto: CreateUserDto, tx?: PrismaTransaction) {
-    const db = tx ?? this.databaseService;
+  async create(createUserDto: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const { email } = createUserDto;
@@ -61,8 +67,11 @@ export class UsersService {
   }
 
   async findSession(refreshToken: string) {
-    return this.databaseService.session.findUnique({
-      where: { refreshToken, expiresAt: { gt: new Date() } },
+    return this.databaseService.session.findFirst({
+      where: {
+        refreshToken: { equals: refreshToken },
+        expiresAt: { gt: new Date() },
+      },
     });
   }
 
@@ -132,5 +141,60 @@ export class UsersService {
     });
 
     return { success: true };
+  }
+
+  async verifyUser(verifyUserDto: VerifyUserDto) {
+    const verificationCode =
+      await this.databaseService.registrationVerificationCode.findFirst({
+        where: { email: { equals: verifyUserDto.email } },
+      });
+
+    // 1. Not found
+    if (!verificationCode) {
+      throw new BadRequestException({
+        code: 'VERIFICATION_CODE_NOT_FOUND',
+        message: 'Verification code not found',
+      });
+    }
+
+    // 2. Is expired
+    if (verificationCode.expiresAt <= new Date()) {
+      await this.databaseService.registrationVerificationCode.delete({
+        where: { email: verifyUserDto.email },
+      });
+      throw new BadRequestException({
+        code: 'VERIFICATION_CODE_EXPIRED',
+        message: 'Verification code has expired',
+      });
+    }
+
+    // 3. Invalid
+    if (verificationCode.code !== verifyUserDto.code) {
+      throw new BadRequestException({
+        code: 'INVALID_VERIFICATION_CODE',
+        message: 'Invalid verification code',
+      });
+    }
+
+    const user = await this.databaseService.user.update({
+      where: { email: verifyUserDto.email },
+      data: { isVerified: true },
+    });
+
+    const profile = await this.databaseService.profile.findFirst({
+      where: { userId: { equals: user.id } },
+    });
+
+    if (!profile) {
+      throw new UnauthorizedException();
+    }
+
+    await this.databaseService.registrationVerificationCode.delete({
+      where: { email: user.email },
+    });
+
+    const userWithProfile = { ...user, profile };
+
+    return this.authService.login(userWithProfile);
   }
 }

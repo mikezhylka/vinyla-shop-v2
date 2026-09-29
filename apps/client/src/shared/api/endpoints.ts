@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
   user: {
     updateEmail: `${BASE_URL}/users/update-email`,
     updatePassword: `${BASE_URL}/users/update-password`,
+    verify: `${BASE_URL}/users/verify`,
   },
   catalog: {
     search: `${BASE_URL}/catalog/search`,
@@ -49,5 +50,8 @@ export const API_ENDPOINTS = {
     createPaymentIntent: `${BASE_URL}/order/create-payment-intent`,
     getAll: `${BASE_URL}/order/get-all`,
     getOne: (id: string | number) => `${BASE_URL}/order/${id}`,
+  },
+  notification: {
+    sendVerificationEmail: `${BASE_URL}/notification/send-verification-email`,
   },
 };

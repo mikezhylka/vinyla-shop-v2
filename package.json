@@ -6,6 +6,9 @@
     "apps/*",
     "packages/*"
   ],
+  "overrides": {
+    "lodash": "^4.18.1"
+  },
   "devDependencies": {
     "turbo": "^2.9.3"
   },

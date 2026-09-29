@@ -25,7 +25,6 @@ export class CloudinaryService {
         },
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       upload.end(file.buffer);
     });
   }

@@ -3,6 +3,7 @@
     "users",
     "genres",
     "products",
-    "genreToProduct"
+    "genreToProduct",
+    "session"
   ]
 }

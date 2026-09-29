@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '@src/database/database.service';
 import { CatalogQueryDto } from './dto/catalog-query.dto';
+import { Product } from '@generated/prisma/client';
 
 const PAGE_SIZE = 12;
 
@@ -142,9 +143,24 @@ export class CatalogService {
       .slice(0, 4)
       .map(([id]) => Number(id));
 
-    const popularProducts = await this.databaseService.product.findMany({
-      where: { id: { in: topProductIds } },
-    });
+    let popularProducts: Product[] = [];
+
+    if (topProductIds.length > 0) {
+      popularProducts = await this.databaseService.product.findMany({
+        where: { id: { in: topProductIds } },
+      });
+    }
+
+    // If there are less than 4 products from orders, fill the rest with random products
+    if (popularProducts.length < 4) {
+      const fallbackProducts = await this.databaseService.product.findMany({
+        where: {
+          id: { notIn: popularProducts.map((p) => p.id) },
+        },
+        take: 4 - popularProducts.length,
+      });
+      popularProducts = [...popularProducts, ...fallbackProducts];
+    }
 
     return popularProducts;
   }

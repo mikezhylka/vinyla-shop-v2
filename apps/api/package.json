@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@monorepo/shared-types": "*",
+    "@nestjs-modules/mailer": "^2.3.7",
     "@nestjs/cache-manager": "^3.1.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
@@ -46,6 +47,7 @@
     "express": "^5.2.1",
     "helmet": "^8.3.0",
     "multer": "^2.1.1",
+    "nodemailer": "^9.0.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -69,6 +71,7 @@
     "@types/jest": "^30.0.0",
     "@types/multer": "^2.1.0",
     "@types/node": "^22.19.15",
+    "@types/nodemailer": "^8.0.1",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/pg": "^8.18.0",

@@ -5,6 +5,7 @@ import { DatabaseService } from '@src/database/database.service';
 import { CreateOrderDto } from './schemas/create-order.schema';
 import Stripe from 'stripe';
 import { ShippingMethod } from '@generated/prisma/enums';
+import { NotificationService } from '@src/notification/notification.service';
 
 type MinimalCartKeys = 'q' | 'i' | 'p';
 
@@ -40,7 +41,10 @@ export interface StripeWebhookEvent {
 export class OrderService {
   private stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async createOrder(user: JwtUser, createOrderDto: CreateOrderDto) {
     const { shipping, items, contact, address } = createOrderDto;
@@ -65,6 +69,12 @@ export class OrderService {
         address: true,
       },
     });
+
+    await this.notificationService.sendOrderConfirmationEmail(
+      contact.email,
+      contact.firstName,
+      newOrder.id,
+    );
 
     return newOrder;
   }
@@ -188,50 +198,72 @@ export class OrderService {
         : [];
 
       if (userId && cartItems.length > 0) {
-        await this.databaseService.$transaction(async (tx) => {
-          // 1. Create order
-          await tx.order.create({
-            data: {
-              userId,
-              status: 'PAID',
-              shipping:
-                (metadata?.shippingMethod as ShippingMethod) || 'FREE_SHIPPING', // Parsed from metadata
-              items: {
-                create: cartItems.map((item) => ({
-                  productId: item.i,
-                  quantity: item.q,
-                  priceAtPurchase: item.p,
-                })),
-              },
-              contact: {
-                create: {
-                  firstName: shipping?.name?.split(' ')[0] || 'Unknown',
-                  lastName:
-                    shipping?.name?.split(' ').slice(1).join(' ') || 'Unknown',
-                  email: receipt_email || 'unknown@example.com',
-                  phone: shipping?.phone || '000000000',
+        const createdOrder = await this.databaseService.$transaction(
+          async (tx) => {
+            // 1. Create order
+            const order = await tx.order.create({
+              data: {
+                userId,
+                status: 'PAID',
+                shipping:
+                  (metadata?.shippingMethod as ShippingMethod) ||
+                  'FREE_SHIPPING', // Parsed from metadata
+                items: {
+                  create: cartItems.map((item) => ({
+                    productId: item.i,
+                    quantity: item.q,
+                    priceAtPurchase: item.p,
+                  })),
+                },
+                contact: {
+                  create: {
+                    firstName: shipping?.name?.split(' ')[0] || 'Unknown',
+                    lastName:
+                      shipping?.name?.split(' ').slice(1).join(' ') ||
+                      'Unknown',
+                    email: receipt_email || 'unknown@example.com',
+                    phone: shipping?.phone || '000000000',
+                  },
+                },
+                address: {
+                  create: {
+                    country: shipping?.address?.country || 'US',
+                    city: shipping?.address?.city || 'Unknown',
+                    street: shipping?.address?.line1 || 'Unknown',
+                    zip: shipping?.address?.postal_code || '00000',
+                  },
                 },
               },
-              address: {
-                create: {
-                  country: shipping?.address?.country || 'US',
-                  city: shipping?.address?.city || 'Unknown',
-                  street: shipping?.address?.line1 || 'Unknown',
-                  zip: shipping?.address?.postal_code || '00000',
-                },
-              },
-            },
-          });
-
-          // 2. Clear cart
-          const profile = await tx.profile.findFirst({ where: { userId } });
-
-          if (profile) {
-            await tx.cartProduct.deleteMany({
-              where: { profileId: profile.id },
             });
-          }
+
+            // 2. Clear cart
+            const profile = await tx.profile.findFirst({ where: { userId } });
+
+            if (profile) {
+              await tx.cartProduct.deleteMany({
+                where: { profileId: profile.id },
+              });
+            }
+
+            return order;
+          },
+        );
+
+        // 3. Send email confirmation
+        // Fetch user's real email if Stripe receipt_email is missing
+        const user = await this.databaseService.user.findUnique({
+          where: { id: userId },
         });
+        const email = user?.email || receipt_email;
+
+        if (email) {
+          const firstName = shipping?.name?.split(' ')[0] || 'Unknown';
+          await this.notificationService.sendOrderConfirmationEmail(
+            email,
+            firstName,
+            createdOrder.id,
+          );
+        }
       }
     }
 

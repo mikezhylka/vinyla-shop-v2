@@ -24,7 +24,7 @@ export async function loginAction(loginForm: LoginDto) {
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Wrong email or password",
+      error: error.message,
     };
   }
 }

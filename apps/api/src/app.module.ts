@@ -8,17 +8,34 @@ import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './product/product.module';
 import { ProfileModule } from './profile/profile.module';
 import { UsersModule } from './users/users.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('EMAIL_HOST'), // Fetch from .env
+          port: 465,
+          secure: true, // Usually false for port 587
+          auth: {
+            user: configService.get<string>('EMAIL_USER'),
+            pass: configService.get<string>('EMAIL_PASSWORD'),
+          },
+        },
+      }),
     }),
     ThrottlerModule.forRoot([
       {
@@ -35,6 +52,7 @@ import { APP_GUARD } from '@nestjs/core';
     CloudinaryModule,
     CartModule,
     OrderModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

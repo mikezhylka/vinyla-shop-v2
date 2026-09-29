@@ -1,6 +1,9 @@
 import { User } from '@generated/prisma/client';
 import {
   BadRequestException,
+  ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -13,15 +16,18 @@ import { CreateUserDto } from '@monorepo/shared-types';
 import { ProfileService } from '@src/profile/profile.service';
 import { JwtPayload } from './types/JwtPayload';
 import { UserWithProfile } from '@src/users/types/User';
+import { NotificationService } from '@src/notification/notification.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private databaseService: DatabaseService,
     private profileService: ProfileService,
+    private notificationService: NotificationService,
   ) {}
 
   async validateUser(
@@ -53,7 +59,7 @@ export class AuthService {
       throw new BadRequestException('This email is already used.');
 
     const user = await this.databaseService.$transaction(async (tx) => {
-      const newUser = await this.usersService.create(createUserDto, tx);
+      const newUser = await this.usersService.create(createUserDto);
 
       const profile = await this.profileService.create(
         { name: name, userId: newUser.id },
@@ -65,10 +71,16 @@ export class AuthService {
       return userWithProfile;
     });
 
-    return this.login(user);
+    await this.notificationService.sendVerificationEmail(user.email);
+
+    return { success: true, message: 'Verification code has been sent.' };
   }
 
   async login(user: UserWithProfile) {
+    if (!user.isVerified) {
+      throw new ForbiddenException('EMAIL_NOT_VERIFIED');
+    }
+
     const { accessToken, refreshToken, accessExpiresAt, refreshExpiresAt } =
       await this.generateTokens(user.id, user.email, user.profile.id);
 
@@ -76,6 +88,11 @@ export class AuthService {
       user.id,
       refreshToken,
       refreshExpiresAt,
+    );
+
+    await this.notificationService.sendSuccessfullAuthEmail(
+      user.email,
+      user.profile.name,
     );
 
     return {
@@ -159,7 +176,7 @@ export class AuthService {
 
   async logout(refreshToken: string) {
     await this.databaseService.session.deleteMany({
-      where: { refreshToken },
+      where: { refreshToken: { equals: refreshToken } },
     });
 
     return { success: true };

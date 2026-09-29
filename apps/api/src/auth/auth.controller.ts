@@ -5,6 +5,10 @@ import { ZodValidationPipe } from '@src/common/decorators/zod-validation-pipe.de
 import { UserWithProfile } from '@src/users/types/User';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import {
+  RefreshToken,
+  RefreshTokenSchema,
+} from './schemas/refresh-token.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -23,12 +27,14 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body('refreshToken') refreshToken: string) {
-    return await this.authService.refresh(refreshToken);
+  @UsePipes(new ZodValidationPipe(RefreshTokenSchema))
+  async refresh(@Body() dto: RefreshToken) {
+    return await this.authService.refresh(dto.refreshToken);
   }
 
   @Post('logout')
-  async logout(@Body('refreshToken') refreshToken: string) {
-    return this.authService.logout(refreshToken);
+  @UsePipes(new ZodValidationPipe(RefreshTokenSchema))
+  async logout(@Body() dto: RefreshToken) {
+    return this.authService.logout(dto.refreshToken);
   }
 }

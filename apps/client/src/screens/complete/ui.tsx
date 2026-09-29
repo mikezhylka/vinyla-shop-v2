@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, JSX } from "react";
 import { loadStripe } from "@stripe/stripe-js";
+import { useSearchParams } from "next/navigation";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
@@ -47,9 +48,8 @@ export function CompletePage() {
       </svg>
     );
 
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      "payment_intent_client_secret",
-    );
+    const searchParams = useSearchParams();
+    const clientSecret = searchParams.get("payment_intent_client_secret");
 
     if (!clientSecret) {
       return;

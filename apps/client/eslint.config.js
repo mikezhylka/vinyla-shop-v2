@@ -26,8 +26,8 @@ export default tseslint.defineConfig(
         "warn",
         { allowConstantExport: true },
       ],
-      "tailwindcss/enforce-shorthand": "warn", // Предлагать замену [10px] на 2.5
-      "tailwindcss/no-custom-classname": "off", // Чтобы не ругался на твои обычные CSS классы
+      "tailwindcss/enforce-shorthand": "warn", // Suggest replacing [10px] with 2.5
+      "tailwindcss/no-custom-classname": "off", // Disable warning on custom CSS classes
     },
   },
 );

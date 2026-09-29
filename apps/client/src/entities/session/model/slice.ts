@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const sessionSlice = createSlice({
-  name: "user",
+  name: "session",
   initialState: {
     isSessionExpired: false,
   },
