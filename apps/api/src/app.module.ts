@@ -28,8 +28,8 @@ import { NotificationModule } from './notification/notification.module';
       useFactory: (configService: ConfigService) => ({
         transport: {
           host: configService.get<string>('EMAIL_HOST'), // Fetch from .env
-          port: 465,
-          secure: true, // Usually false for port 587
+          port: 587,
+          secure: false,
           auth: {
             user: configService.get<string>('EMAIL_USER'),
             pass: configService.get<string>('EMAIL_PASSWORD'),
