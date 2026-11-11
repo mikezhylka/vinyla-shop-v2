@@ -95,7 +95,7 @@ export class AuthService {
       refreshExpiresAt,
     );
 
-    if (!process.env.IS_DEMO_MODE) {
+    if (this.configService.get('IS_DEMO_MODE') === 'false') {
       await this.notificationService.sendSuccessfullAuthEmail(
         user.email,
         user.profile.name,
