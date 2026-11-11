@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, JSX } from "react";
+import { useState, useEffect, JSX } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { useSearchParams } from "next/navigation";
 
@@ -9,12 +9,18 @@ const stripePromise = loadStripe(
 );
 
 export function CompletePage() {
+  const searchParams = useSearchParams();
+  const clientSecret = searchParams.get("payment_intent_client_secret");
+
   const [statusText, setStatusText] = useState("");
   const [iconColor, setIconColor] = useState("");
   const [icon, setIcon] = useState<string | JSX.Element>("");
   const [paymentIntentId, setPaymentIntentId] = useState("");
 
   useEffect(() => {
+    if (!clientSecret) {
+      return;
+    }
     const SuccessIcon = (
       <svg
         width="16"
@@ -47,20 +53,11 @@ export function CompletePage() {
         />
       </svg>
     );
-
-    const searchParams = useSearchParams();
-    const clientSecret = searchParams.get("payment_intent_client_secret");
-
-    if (!clientSecret) {
-      return;
-    }
-
     stripePromise.then((stripe) => {
       if (!stripe) return;
       stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
         if (!paymentIntent) return;
         setPaymentIntentId(paymentIntent.id);
-
         switch (paymentIntent.status) {
           case "succeeded":
             setIconColor("#30B130");
@@ -85,7 +82,7 @@ export function CompletePage() {
         }
       });
     });
-  }, []);
+  }, [clientSecret]);
 
   return (
     <div className="max-w-2xl mx-auto py-24 px-4 text-center">
