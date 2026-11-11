@@ -1,27 +1,18 @@
-import { createApp, createIdentityProvider } from '@kottster/server';
-import schema from '../../kottster-app.json';
+import { createApp, createIdentityProvider } from "@kottster/server";
+import schema from "../../kottster-app.json";
+import "dotenv/config";
 
-/* 
- * For security, consider moving the secret data to environment variables.
- * See https://kottster.app/docs/deploying#before-you-deploy
- */
 export const app = createApp({
   schema,
-  secretKey: 'rERVFFgz7XtShex1qGsanp5TWlZZGvn3',
-  kottsterApiToken: 'nrjdKuGJ4h2jFEaPAT0K1vAopfOtpP2R',
+  secretKey: process.env.KOTTSTER_SECRET_KEY,
+  kottsterApiToken: process.env.KOTTSTER_API_TOKEN,
 
-  /*
-   * The identity provider configuration.
-   * See https://kottster.app/docs/app-configuration/identity-provider
-   */
-  identityProvider: createIdentityProvider('sqlite', {
-    fileName: 'app.db',
+  identityProvider: createIdentityProvider("sqlite", {
+    fileName: "app.db",
+    passwordHashAlgorithm: "bcrypt",
+    jwtSecretSalt: process.env.KOTTSTER_JWT_SALT,
 
-    passwordHashAlgorithm: 'bcrypt',
-    jwtSecretSalt: 'JJHiXRBnpkTuBu4j',
-    
-    /* The root admin user credentials */
-    rootUsername: 'admin',
-    rootPassword: '3io4fk3klfm4l3_pKLG23mklg_',
+    rootUsername: "admin",
+    rootPassword: process.env.KOTTSTER_ROOT_PASSWORD,
   }),
 });

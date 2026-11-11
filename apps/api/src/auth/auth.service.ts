@@ -71,9 +71,14 @@ export class AuthService {
       return userWithProfile;
     });
 
-    await this.notificationService.sendVerificationEmail(user.email);
+    const sendEmail = await this.notificationService.sendVerificationEmail(
+      user.email,
+    );
 
-    return { success: true, message: 'Verification code has been sent.' };
+    return {
+      success: true,
+      message: sendEmail.message,
+    };
   }
 
   async login(user: UserWithProfile) {
@@ -90,10 +95,12 @@ export class AuthService {
       refreshExpiresAt,
     );
 
-    await this.notificationService.sendSuccessfullAuthEmail(
-      user.email,
-      user.profile.name,
-    );
+    if (!process.env.IS_DEMO_MODE) {
+      await this.notificationService.sendSuccessfullAuthEmail(
+        user.email,
+        user.profile.name,
+      );
+    }
 
     return {
       profile: {

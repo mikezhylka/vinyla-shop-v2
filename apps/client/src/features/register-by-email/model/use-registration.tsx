@@ -1,4 +1,3 @@
-// import { useAppDispatch } from "@/shared/lib/store/hooks";
 import { CreateUserDto } from "@monorepo/shared-types/schemas/user.schema";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,7 +7,6 @@ export function useRegistration() {
   const [serverError, setServerError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const router = useRouter();
-  // const dispatch = useAppDispatch();
 
   async function onSubmit(data: CreateUserDto) {
     setIsLoggingIn(true);
@@ -19,6 +17,11 @@ export function useRegistration() {
 
       if (result.success) {
         sessionStorage.setItem("verification_email", data.email);
+
+        if (result.message) {
+          sessionStorage.setItem("verification_message", result.message);
+        }
+
         router.push("/verify");
       }
 

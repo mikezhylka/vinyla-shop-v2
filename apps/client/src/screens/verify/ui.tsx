@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { verifyCode as verifyCodeAction } from "@/entities/user/api/verify-code";
 import { useRouter } from "next/navigation";
 import { setLocalUserData } from "@/shared/lib/handlers/setLocalUserData";
@@ -17,6 +17,16 @@ export default function VerifyPage() {
   const [isResendActivated, setIsResendActivated] = useState(false);
   const [isResended, setIsResended] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [infoMessage, setInfoMessage] = useState("");
+
+  useEffect(() => {
+    const savedMessage = sessionStorage.getItem("verification_message");
+
+    if (savedMessage) {
+      setInfoMessage(savedMessage);
+      sessionStorage.removeItem("verification_message");
+    }
+  }, []);
 
   const verifyCode = async function (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,10 +77,7 @@ export default function VerifyPage() {
         <div className="w-full max-w-sm z-10 animate-on-scroll">
           <div className="mb-10">
             <h3 className="h3 font-bold mb-3">Verify your email</h3>
-            <p className="small-text text-neutral-gray">
-              We have sent a 6-digit code to your email address. Please enter it
-              below to continue.
-            </p>
+            <p className="small-text text-neutral-gray">{infoMessage}</p>
           </div>
 
           <form onSubmit={verifyCode} className="space-y-5">

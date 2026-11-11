@@ -13,8 +13,8 @@ import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { MailerModule } from '@nestjs-modules/mailer';
 import { NotificationModule } from './notification/notification.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -27,9 +27,9 @@ import { NotificationModule } from './notification/notification.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         transport: {
-          host: configService.get<string>('EMAIL_HOST'), // Fetch from .env
-          port: 587,
-          secure: false,
+          host: configService.get<string>('EMAIL_HOST'),
+          port: 465,
+          secure: true,
           auth: {
             user: configService.get<string>('EMAIL_USER'),
             pass: configService.get<string>('EMAIL_PASSWORD'),

@@ -1,5 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from '@src/database/database.service';
 
 @Injectable()
@@ -7,9 +8,27 @@ export class NotificationService {
   constructor(
     private readonly mailerService: MailerService,
     private databaseService: DatabaseService,
+    private readonly configService: ConfigService,
   ) {}
 
   async createVerificationCode(email: string) {
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    if (this.configService.get('IS_DEMO_MODE') === 'true') {
+      await this.databaseService.registrationVerificationCode.create({
+        data: {
+          email,
+          code: '000000',
+          expiresAt,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Demo mode: use code 000000 to verify.',
+      };
+    }
+
     let code = '';
 
     for (let i = 0; i < 6; i++) {
@@ -17,8 +36,6 @@ export class NotificationService {
 
       code += int.toString();
     }
-
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     const result =
       await this.databaseService.registrationVerificationCode.create({
@@ -129,6 +146,13 @@ export class NotificationService {
       `,
       context: { code },
     });
+
+    return {
+      success: true,
+      message: code.message
+        ? code.message
+        : 'We have sent a 6-digit code to your email address. Please enter it below to continue.',
+    };
   }
   async sendOrderConfirmationEmail(
     email: string,
